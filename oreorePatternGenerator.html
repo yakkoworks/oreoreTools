@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>oreorePatternGenerator</title>
+	<style>
+		#wrapper {
+			text-align: center;
+			display: grid;
+			row-gap: 10px;
+		}
+		#pattern {
+			width: 270px; height: 600px; background: #ccc; margin: 0 auto;
+		}
+		h1{
+			text-align: center; margin: 0;
+		}
+		textarea{
+			width: 500px; height: 250px;
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+</head>
+<body onload="onload()">
+	<div id="wrapper">
+		<h1>oreorePatternGenerator</h1>
+		<div id="pattern" onclick="setProperties();"></div>
+		<div id="inputs">
+				<input type="text" id="output-width" placeholder="width">
+				<input type="text" id="output-height" placeholder="height">
+				<input type="text" name="output-filename" id="output-filename" placeholder="fileName">
+				<button id="save" onclick="save()">Save</button>
+		</div>
+	</div>
+	<dialog id="dialog-cssProperties">
+		<form method="dialog" onsubmit="preview();">
+			<textarea name="input-css" id="input-css" onchange="preview();" placeholder="cssProperty"></textarea>
+			<button type="submit">OK</button>
+		</form>
+	</dialog>
+	<script>
+		function onload(){
+			var defalutFileName = formatDateTime();
+			document.getElementById("output-filename").value = defalutFileName;
+		}
+		function formatDateTime(){
+			const date = new Date();
+			const yyyy = date.getFullYear().toString();
+			const MM = ("00" + date.getMonth() + 1).slice(-2);
+			const dd = ("00" + date.getDate()).slice(-2);
+			const hh = ("00" + date.getHours()).slice(-2);
+			const mm = ("00" + date.getMinutes()).slice(-2);
+			const ss = ("00" + date.getSeconds()).slice(-2);
+			return yyyy + MM + dd +"-"+hh + mm + ss;
+		}
+		function setProperties(){
+			document.getElementById("dialog-cssProperties").showModal();
+		}
+		function preview(){
+			var pattern = document.getElementById("pattern");
+			var inputValue = document.getElementById("input-css").value;
+			inputValue = inputValue.replace(/\t/g,"");
+			inputValue = inputValue.replace(/\n/g,"");
+			inputValue = inputValue.replace(/^\s+/gm,"");
+			console.log(inputValue);
+			var cssProperties = [];
+			cssProperties = inputValue.split(";");
+			for(var i = 0;i<cssProperties.length;i++){
+				var property = [];
+				property = cssProperties[i].split(/:\s/);
+				property[1] = property[1].replace(";","");
+				// property[0]:名前、property[1]:値
+				pattern.style.setProperty(property[0],property[1]);
+			}
+		}
+		function save(){
+			var outputWidth = document.getElementById("output-width").value;
+			var outputHeight = document.getElementById("output-height").value;
+			var node = document.querySelector("#pattern");
+			var fileName = document.getElementById("output-filename").value;
+			if(outputWidth == "" || outputHeight == ""){
+				alert("出力サイズを指定してネ");
+			}
+			else {
+				domtoimage.toPng(node,{width:outputWidth,height:outputHeight})
+				.then(function (dataUrl) {
+					var link = document.createElement('a');
+					link.download = fileName+".png";
+					link.href = dataUrl;
+					link.click();
+				})
+				.catch(function (err){
+					console.log(`${err}`);
+				});
+			}
+		}
+	</script>
+</body>
+</html>

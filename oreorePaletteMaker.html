@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+	<title>oreorePaletteMaker</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+	<style>
+		.m-plus-rounded-1c-regular {
+			text-align: center;
+			font-family: "M PLUS Rounded 1c", sans-serif;
+			font-weight: 400;
+			font-style: normal;
+		}
+		.line {
+			display: flex;
+			align-items: center;
+			flex-direction: column;
+		}
+		.color{
+			border: 1px solid;
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			/* background-color: rgb(123, 22, 22); */
+			background-color: hsl(123, 22%, 22%);
+		}
+		#out{
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		#palette{
+			zoom: 3;
+			width: 400px;
+			height: 200px;
+			/* grid-template-columns: repeat(4, 0.5fr); */
+			margin: 0 auto;
+			display: grid;
+			align-items: center;
+		}
+		.values{
+			display: grid;
+		}
+		input{
+			margin: 10px auto;
+		}
+	</style>
+	
+</head>
+<body class="m-plus-rounded-1c-regular">
+	<h1  onclick="showModalDialog('dialog-add-color')"  class="m-plus-rounded-1c-regular">oreorePaletteMaker</h1>
+	<div id="out"><div id="palette"></div></div>
+	<button onclick="saveImage()">Save</button>
+	<dialog id="dialog-add-color">
+		<form method="dialog">
+			<div style="display: grid;">
+				<!-- <div id="add-color" class="color" style="margin: 10px auto;"></div> -->
+				<input type="number" name="add-color-hue" id="add-color-hue" max="360" min="0">
+				<input type="number" name="add-color-saturation" id="add-color-saturation" max="100" min="0">
+				<input type="number" name="add-color-lightness" id="add-color-lightness" max="100" min="0">
+			</div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-add-color')">キャンセル</button>
+				<button type="submit" onclick="addColor();">OK</button>
+			</div>
+		</form>
+	</dialog>
+	<dialog id="dialog-edit-color">
+		<form method="dialog">
+			<div style="display: grid;">
+				<input type="hidden" id="edit-index" value="">
+				<!-- <div id="edit-color" class="color" style="margin: 10px auto;"></div> -->
+				<input type="number" name="edit-color-hue" id="edit-color-hue" max="360" min="0">
+				<input type="number" name="edit-color-saturation" id="edit-color-saturation"  max="100" min="0">
+				<input type="number" name="edit-color-lightness" id="edit-color-lightness"  max="100" min="0">
+			</div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-edit-color')">キャンセル</button>
+				<button type="submit" onclick="editColor();">OK</button>
+			</div>
+		</form>
+	</dialog>
+</body>
+<script>
+	function showModalDialog(id) {
+		document.getElementById(id).showModal();
+	}
+	function closeModalDialog(id) {
+		document.getElementById(id).close();
+	}
+	function addColor(){
+		var line = document.createElement("div");
+		var index = document.getElementById("palette").childElementCount+1;
+		line.id = "line"+index;
+		line.classList.add("line");
+		line.addEventListener('click',function(){showEditColor(index);});
+		var hue = document.getElementById("add-color-hue").value;
+		var saturation = document.getElementById("add-color-saturation").value;
+		var lightness = document.getElementById("add-color-lightness").value;
+		var str = hue+","+saturation+","+lightness;
+		var hsl = hue+","+saturation+"%,"+lightness+"%";
+		line.dataset.hue = hue;
+		line.dataset.saturation = saturation;
+		line.dataset.lightness = lightness;
+		line.dataset.hsl = hsl;
+		line.insertAdjacentHTML("beforeend",'<div class="color" id="color'+index+'"></div><span class="value" id="hue'+index+'"></span><span class="value" id="saturation'+index+'"></span><span class="value" id="lightness'+index+'"></span>');
+		document.getElementById("palette").appendChild(line);
+		document.getElementById("hue"+index).innerText = hue;
+		document.getElementById("saturation"+index).innerText = saturation;
+		document.getElementById("lightness"+index).innerText = lightness;
+		document.getElementById("color"+index).style.backgroundColor = "hsl("+hsl+")";
+		document.getElementById("add-color-hue").value = '';
+		document.getElementById("add-color-saturation").value = "";
+		document.getElementById("add-color-lightness").value = "";
+		if(index > 1 && index < 8) {
+			document.getElementById("palette").style.gridTemplateColumns = "repeat("+index+", 0.5fr)";
+		}
+	}
+	function showEditColor(index){
+		var elem = document.getElementById("line"+index);
+		document.getElementById("edit-index").value = index;
+		document.getElementById("edit-color-hue").value = elem.dataset.hue; 
+		document.getElementById("edit-color-saturation").value = elem.dataset.saturation;
+		document.getElementById("edit-color-lightness").value = elem.dataset.lightness;
+		showModalDialog("dialog-edit-color");
+		// document.getElementById("edit-color").style.backgroundColor = "hsl("+elem.dataset.hsl+")";
+	}
+	function editColor(){
+		var index = document.getElementById("edit-index").value;
+		var target = document.getElementById("line"+index);
+		target.dataset.hue = document.getElementById("edit-color-hue").value;
+		target.dataset.saturation = document.getElementById("edit-color-saturation").value;
+		target.dataset.lightness = document.getElementById("edit-color-lightness").value;
+		var hsl = target.dataset.hue+","+target.dataset.saturation+"%,"+target.dataset.lightness+"%";
+		target.dataset.hsl = hsl;
+		document.getElementById("hue"+index).innerText = target.dataset.hue;
+		document.getElementById("saturation"+index).innerText = target.dataset.saturation;
+		document.getElementById("lightness"+index).innerText = target.dataset.lightness;
+		document.getElementById("color"+index).style.backgroundColor = "hsl("+hsl+")";
+	}
+	function saveImage(){
+		var node = document.querySelector("#out");
+		domtoimage.toPng(node,{width:1440,height: 400})
+		.then(function (dataUrl) {
+			var link = document.createElement('a');
+			link.download = "test.png";
+			link.href = dataUrl;
+			link.click();
+		});
+	}
+</script>
+</html>
