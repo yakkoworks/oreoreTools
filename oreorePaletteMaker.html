@@ -10,6 +10,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+	<script src="https://unpkg.com/chroma-js@3.1.1/dist/chroma.min.cjs"></script>
 	<style>
 		.m-plus-rounded-1c-regular {
 			text-align: center;
@@ -36,9 +37,10 @@
 			justify-content: center;
 		}
 		#palette{
-			zoom: 3;
+			/* zoom: 3; */
 			width: 400px;
 			height: 200px;
+			column-gap: 20px;
 			/* grid-template-columns: repeat(4, 0.5fr); */
 			margin: 0 auto;
 			display: grid;
@@ -50,20 +52,41 @@
 		input{
 			margin: 10px auto;
 		}
+		#dialog-saving{
+			position: relative;
+			width: -webkit-fill-available;
+			height: 100%;
+			border: none;
+			justify-content: center;
+			align-items: center;
+		}
+		#dialog-saving p {
+			position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: fit-content;
+    width: 100%;
+    margin: auto;
+		}
 	</style>
 	
 </head>
 <body class="m-plus-rounded-1c-regular">
-	<h1  onclick="showModalDialog('dialog-add-color')"  class="m-plus-rounded-1c-regular">oreorePaletteMaker</h1>
+	<h1  onclick="showAddColor();"  class="m-plus-rounded-1c-regular">oreorePaletteMaker</h1>
 	<div id="out"><div id="palette"></div></div>
 	<button onclick="saveImage()">Save</button>
 	<dialog id="dialog-add-color">
 		<form method="dialog">
 			<div style="display: grid;">
 				<!-- <div id="add-color" class="color" style="margin: 10px auto;"></div> -->
-				<input type="number" name="add-color-hue" id="add-color-hue" max="360" min="0">
+				<input type="number" name="add-color-hue" id="add-color-hue" max="360" min="0" value="30">
+				<input type="number" name="add-color-saturation" id="add-color-saturation" max="100" min="0"  value="30">
+				<input type="number" name="add-color-lightness" id="add-color-lightness" max="100" min="0"  value="30">
+				<!-- <input type="number" name="add-color-hue" id="add-color-hue" max="360" min="0">
 				<input type="number" name="add-color-saturation" id="add-color-saturation" max="100" min="0">
-				<input type="number" name="add-color-lightness" id="add-color-lightness" max="100" min="0">
+				<input type="number" name="add-color-lightness" id="add-color-lightness" max="100" min="0"> -->
 			</div>
 			<div>
 				<button type="reset" onclick="closeModalDialog('dialog-add-color')">キャンセル</button>
@@ -86,6 +109,7 @@
 			</div>
 		</form>
 	</dialog>
+	<dialog id="dialog-saving"><p>保存中</p></dialog>
 </body>
 <script>
 	function showModalDialog(id) {
@@ -93,6 +117,16 @@
 	}
 	function closeModalDialog(id) {
 		document.getElementById(id).close();
+	}
+	function showAddColor(){
+		var index = document.getElementById("palette").childElementCount+1;
+				if(index > 7) {
+			alert("7色までやで");
+			return;
+		} else {
+			showModalDialog('dialog-add-color');
+		}
+
 	}
 	function addColor(){
 		var line = document.createElement("div");
@@ -103,18 +137,17 @@
 		var hue = document.getElementById("add-color-hue").value;
 		var saturation = document.getElementById("add-color-saturation").value;
 		var lightness = document.getElementById("add-color-lightness").value;
-		var str = hue+","+saturation+","+lightness;
-		var hsl = hue+","+saturation+"%,"+lightness+"%";
+		var code = HSVtoRGB(hue,"0."+saturation,"0."+lightness).code;
 		line.dataset.hue = hue;
 		line.dataset.saturation = saturation;
 		line.dataset.lightness = lightness;
-		line.dataset.hsl = hsl;
 		line.insertAdjacentHTML("beforeend",'<div class="color" id="color'+index+'"></div><span class="value" id="hue'+index+'"></span><span class="value" id="saturation'+index+'"></span><span class="value" id="lightness'+index+'"></span>');
 		document.getElementById("palette").appendChild(line);
 		document.getElementById("hue"+index).innerText = hue;
 		document.getElementById("saturation"+index).innerText = saturation;
 		document.getElementById("lightness"+index).innerText = lightness;
-		document.getElementById("color"+index).style.backgroundColor = "hsl("+hsl+")";
+		// console.log(code);
+		document.getElementById("color"+index).style.backgroundColor = code;
 		document.getElementById("add-color-hue").value = '';
 		document.getElementById("add-color-saturation").value = "";
 		document.getElementById("add-color-lightness").value = "";
@@ -137,22 +170,60 @@
 		target.dataset.hue = document.getElementById("edit-color-hue").value;
 		target.dataset.saturation = document.getElementById("edit-color-saturation").value;
 		target.dataset.lightness = document.getElementById("edit-color-lightness").value;
-		var hsl = target.dataset.hue+","+target.dataset.saturation+"%,"+target.dataset.lightness+"%";
-		target.dataset.hsl = hsl;
+		var code = HSVtoRGB(target.dataset.hue,"0."+target.dataset.saturation,"0."+target.dataset.lightness).code;
 		document.getElementById("hue"+index).innerText = target.dataset.hue;
 		document.getElementById("saturation"+index).innerText = target.dataset.saturation;
 		document.getElementById("lightness"+index).innerText = target.dataset.lightness;
-		document.getElementById("color"+index).style.backgroundColor = "hsl("+hsl+")";
+		document.getElementById("color"+index).style.backgroundColor = code;
 	}
 	function saveImage(){
 		var node = document.querySelector("#out");
+		var palette = document.getElementById("palette");
+		showModalDialog("dialog-saving");
+		palette.style.zoom = 3;
 		domtoimage.toPng(node,{width:1440,height: 400})
 		.then(function (dataUrl) {
 			var link = document.createElement('a');
 			link.download = "test.png";
 			link.href = dataUrl;
 			link.click();
+			palette.style.zoom = "unset";
+			closeModalDialog("dialog-saving");
 		});
+	}
+	
+	function HSVtoRGB( hue, saturation, value )
+	{
+		var C = value * saturation;
+		var H = hue / 60;
+		var X = C * ( 1 - Math.abs( H % 2 - 1 ) );
+		
+		var R = 0, G = 0, B = 0;
+		switch( Math.floor( H ) )
+		{
+			case 0: R = C; G = X; B = 0; break;
+			case 1: R = X; G = C; B = 0; break;
+			case 2: R = 0; G = C; B = X; break;
+			case 3: R = 0; G = X; B = C; break;
+			case 4: R = X; G = 0; B = C; break;
+			case 5: R = C; G = 0; B = X; break;
+		}
+		
+		var m = value - C;
+		var rgb = {
+			R:Math.round( ( R + m ) * 255 ),
+			G:Math.round( ( G + m ) * 255 ),
+			B:Math.round( ( B + m ) * 255 )
+		};
+		
+		rgb.code = [
+		'#',
+		( '00' + Number( rgb.R ).toString( 16 ) ).slice( -2 ),
+		( '00' + Number( rgb.G ).toString( 16 ) ).slice( -2 ),
+		( '00' + Number( rgb.B ).toString( 16 ) ).slice( -2 )
+		].join( '' );
+		
+		return rgb;
 	}
 </script>
 </html>
