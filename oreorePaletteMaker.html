@@ -134,7 +134,7 @@
 		var hue = document.getElementById("add-color-hue").value;
 		var saturation = document.getElementById("add-color-saturation").value;
 		var lightness = document.getElementById("add-color-lightness").value;
-		var code = HSVtoRGB(hue,"0."+saturation,"0."+lightness).code;
+		var code = HSVtoRGB(hue,saturation / 100,lightness / 100).code;
 		line.dataset.hue = hue;
 		line.dataset.saturation = saturation;
 		line.dataset.lightness = lightness;
@@ -167,7 +167,7 @@
 		target.dataset.hue = document.getElementById("edit-color-hue").value;
 		target.dataset.saturation = document.getElementById("edit-color-saturation").value;
 		target.dataset.lightness = document.getElementById("edit-color-lightness").value;
-		var code = HSVtoRGB(target.dataset.hue,"0."+target.dataset.saturation,"0."+target.dataset.lightness).code;
+		var code = HSVtoRGB(target.dataset.hue,target.dataset.saturation / 100,target.dataset.lightness / 100).code;
 		document.getElementById("hue"+index).innerText = target.dataset.hue;
 		document.getElementById("saturation"+index).innerText = target.dataset.saturation;
 		document.getElementById("lightness"+index).innerText = target.dataset.lightness;
