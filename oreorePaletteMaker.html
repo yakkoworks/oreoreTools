@@ -62,13 +62,13 @@
 		}
 		#dialog-saving p {
 			position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: fit-content;
-    width: 100%;
-    margin: auto;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: fit-content;
+			width: 100%;
+			margin: auto;
 		}
 	</style>
 	
@@ -117,13 +117,13 @@
 	}
 	function showAddColor(){
 		var index = document.getElementById("palette").childElementCount+1;
-				if(index > 7) {
+		if(index > 7) {
 			alert("7色までやで");
 			return;
 		} else {
 			showModalDialog('dialog-add-color');
 		}
-
+		
 	}
 	function addColor(){
 		var line = document.createElement("div");
@@ -181,7 +181,7 @@
 		domtoimage.toPng(node,{width:1440,height: 400})
 		.then(function (dataUrl) {
 			var link = document.createElement('a');
-			link.download = "test.png";
+			link.download = formatDateTime()+".png";
 			link.href = dataUrl;
 			link.click();
 			palette.style.zoom = "unset";
@@ -221,6 +221,17 @@
 		].join( '' );
 		
 		return rgb;
+	}
+	function formatDateTime(){
+		var date = new Date();
+		var yyyy = date.getFullYear().toString();
+		var M = date.getMonth() + 1;
+		var MM = ("00" + M).slice(-2);
+		var dd = ("00" + date.getDate()).slice(-2);
+		var hh = ("00" + date.getHours()).slice(-2);
+		var mm = ("00" + date.getMinutes()).slice(-2);
+		var ss = ("00" + date.getSeconds()).slice(-2);
+		return yyyy + MM + dd +"-"+hh + mm + ss;
 	}
 </script>
 </html>
