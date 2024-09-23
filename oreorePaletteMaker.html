@@ -8,15 +8,26 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;500;700&display=swap" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 	<script src="https://unpkg.com/chroma-js@3.1.1/dist/chroma.min.cjs"></script>
 	<style>
+		.kaisei-decol-regular {
+			font-family: "Kaisei Decol", serif;
+			font-weight: 400;
+			font-style: normal;
+			text-align: center;
+			color: #ffd522;
+			text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.90), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1);
+		}
 		.m-plus-rounded-1c-regular {
 			text-align: center;
 			font-family: "M PLUS Rounded 1c", sans-serif;
 			font-weight: 400;
 			font-style: normal;
+			color: white;
+			text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.90), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1), 0px 0px 2px rgba(0, 0, 0, 1);
 		}
 		.line {
 			display: flex;
@@ -31,7 +42,7 @@
 			/* background-color: rgb(123, 22, 22); */
 			background-color: hsl(123, 22%, 22%);
 		}
-		#out{
+		.out{
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -74,9 +85,13 @@
 	
 </head>
 <body class="m-plus-rounded-1c-regular">
-	<h1  onclick="showAddColor();"  class="m-plus-rounded-1c-regular">oreorePaletteMaker</h1>
-	<div id="out"><div id="palette"></div></div>
-	<button onclick="saveImage()">Save</button>
+	<!-- <h1  onclick="showAddColor();"  class="m-plus-rounded-1c-regular">oreorePaletteMaker</h1> -->
+	<div id="out-title" class="out" style="flex-direction: column;">
+		<h1 id="title" class="kaisei-decol-regular"  style="font-size: 50px; margin: 0;">極星堂だより</h1>
+		<h2 id="subtitle" class="kaisei-decol-regular" style="font-size: 20px;" onclick='showModalDialog("dialog-change-subtitle")' >- 秋色コーデリベンジ大会 -</h2>
+	</div>
+	<div id="out-palette" class="out"><div id="palette"></div></div>
+	<button onclick="showAddColor();">Add Color</button><button onclick="savePaletteImage()">Save Palette</button><button onclick="saveTitleImage()">Save Title</button>
 	<dialog id="dialog-add-color">
 		<form method="dialog">
 			<div style="display: grid;">
@@ -103,6 +118,15 @@
 			<div>
 				<button type="reset" onclick="closeModalDialog('dialog-edit-color')">キャンセル</button>
 				<button type="submit" onclick="editColor();">OK</button>
+			</div>
+		</form>
+	</dialog>
+	<dialog id="dialog-change-subtitle">
+		<form method="dialog">
+			<div><input type="text" name="input-subtitle" id="input-subtitle"></div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-change-subtitle')">キャンセル</button>
+				<button type="submit" onclick="changeSubtitle();">OK</button>
 			</div>
 		</form>
 	</dialog>
@@ -173,18 +197,43 @@
 		document.getElementById("lightness"+index).innerText = target.dataset.lightness;
 		document.getElementById("color"+index).style.backgroundColor = code;
 	}
-	function saveImage(){
-		var node = document.querySelector("#out");
+	function changeSubtitle(){
+		var subtitle = document.getElementById("input-subtitle");
+		document.getElementById("subtitle").innerText = "- "+subtitle.value+" -"
+		subtitle.value = "";
+	}
+	function savePaletteImage(){
+		var node = document.querySelector("#out-palette");
 		var palette = document.getElementById("palette");
 		showModalDialog("dialog-saving");
 		palette.style.zoom = 3;
-		domtoimage.toPng(node,{width:1440,height: 400})
+		domtoimage.toPng(node,{width:1440,height: 600})
 		.then(function (dataUrl) {
 			var link = document.createElement('a');
-			link.download = formatDateTime()+".png";
+			link.download = formatDateTime()+"_palette.png";
 			link.href = dataUrl;
 			link.click();
 			palette.style.zoom = "unset";
+			closeModalDialog("dialog-saving");
+		});
+	}
+	function saveTitleImage(){
+		var node = document.querySelector("#out-title");
+		var title = document.getElementById("title");
+		var subtitle = document.getElementById("subtitle");
+		showModalDialog("dialog-saving");
+		// node.style.zoom = 4;
+		title.style.fontSize = "100px";
+		subtitle.style.fontSize = "40px";
+		domtoimage.toPng(node,{width:1440,height: 400})
+		.then(function (dataUrl) {
+			var link = document.createElement('a');
+			link.download = formatDateTime()+"_title.png";
+			link.href = dataUrl;
+			link.click();
+			// node.style.zoom = "unset";
+			title.style.fontSize = "50px";
+			subtitle.style.fontSize = "20px";
 			closeModalDialog("dialog-saving");
 		});
 	}
