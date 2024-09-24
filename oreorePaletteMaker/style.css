@@ -58,6 +58,7 @@
 			font-size: 60px;
 		}
 		#out-palette{
+			font-family: "Kaisei Decol", serif;
 			align-content: end;
 			
 		}
@@ -66,7 +67,7 @@
 			width: 1440px;
 			height: 600px;
 			font-size: 60px;
-			column-gap: 20px;
+			/* column-gap: 20px; */
 			/* grid-template-columns: repeat(4, 0.5fr); */
 			margin: 0 auto;
 			display: grid;

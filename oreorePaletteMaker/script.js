@@ -84,7 +84,7 @@
 		domtoimage.toPng(node,{width:1440,height: 1920})
 		.then(function (dataUrl) {
 			var link = document.createElement('a');
-			link.download = formatDateTime()+"_palette.png";
+			link.download = "極星堂だより"+formatDateTime()+".png";
 			link.href = dataUrl;
 			link.click();
 			node.style.zoom = 0.3;
@@ -133,5 +133,5 @@
 		var hh = ("00" + date.getHours()).slice(-2);
 		var mm = ("00" + date.getMinutes()).slice(-2);
 		var ss = ("00" + date.getSeconds()).slice(-2);
-		return yyyy + MM + dd +"-"+hh + mm + ss;
+		return yyyy + MM + dd;
 	}
