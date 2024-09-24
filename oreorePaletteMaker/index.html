@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta http-equiv='X-UA-Compatible' content='IE=edge'>
+	<title>oreorePaletteMaker</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;500;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+	<script src="https://unpkg.com/chroma-js@3.1.1/dist/chroma.min.cjs"></script>
+	<script src="script.js"></script>
+</head>
+<body class="m-plus-rounded-1c-regular">
+	<div id="wrapper">
+		<div id="output">
+			<div id="out-title" class="out" style="flex-direction: column;">
+				<h1 id="title" class="kaisei-decol-regular">極星堂だより</h1>
+				<h2 id="subtitle" class="kaisei-decol-regular" onclick='showModalDialog("dialog-change-subtitle")' >- サブタイトル -</h2>
+			</div>
+			<div id="out-palette" class="out"><div id="palette"></div></div>
+		</div>
+	</div>
+	<div id="buttons">
+<button onclick="showAddColor();">Add Color</button><button onclick="document.getElementById('coordinate').click();">Set Image</button><button onclick="saveImage()">Export</button>
+<input type="file" name="coordinate" id="coordinate" onchange="setImage();" style="display: none;">
+	</div>
+	
+	<dialog id="dialog-add-color">
+		<form method="dialog">
+			<div style="display: grid;">
+				<input type="number" name="add-color-hue" id="add-color-hue" max="360" min="0">
+				<input type="number" name="add-color-saturation" id="add-color-saturation" max="100" min="0">
+				<input type="number" name="add-color-lightness" id="add-color-lightness" max="100" min="0">
+			</div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-add-color')">キャンセル</button>
+				<button type="submit" onclick="addColor();">OK</button>
+			</div>
+		</form>
+	</dialog>
+
+	<dialog id="dialog-edit-color">
+		<form method="dialog">
+			<div style="display: grid;">
+				<input type="hidden" id="edit-index" value="">
+				<input type="number" name="edit-color-hue" id="edit-color-hue" max="360" min="0">
+				<input type="number" name="edit-color-saturation" id="edit-color-saturation"  max="100" min="0">
+				<input type="number" name="edit-color-lightness" id="edit-color-lightness"  max="100" min="0">
+			</div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-edit-color')">キャンセル</button>
+				<button type="submit" onclick="editColor();">OK</button>
+			</div>
+		</form>
+	</dialog>
+
+	<dialog id="dialog-change-subtitle">
+		<form method="dialog">
+			<div><input type="text" name="input-subtitle" id="input-subtitle"></div>
+			<div>
+				<button type="reset" onclick="closeModalDialog('dialog-change-subtitle')">キャンセル</button>
+				<button type="submit" onclick="changeSubtitle();">OK</button>
+			</div>
+		</form>
+	</dialog>
+	<dialog id="dialog-saving"><p>保存中</p></dialog>
+</body>
+</html>
