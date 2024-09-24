@@ -126,12 +126,12 @@
 	}
 	function formatDateTime(){
 		var date = new Date();
-		var yyyy = date.getFullYear().toString();
+		var yy = date.getFullYear().toString().slice(-2);
 		var M = date.getMonth() + 1;
 		var MM = ("00" + M).slice(-2);
 		var dd = ("00" + date.getDate()).slice(-2);
 		var hh = ("00" + date.getHours()).slice(-2);
 		var mm = ("00" + date.getMinutes()).slice(-2);
 		var ss = ("00" + date.getSeconds()).slice(-2);
-		return yyyy + MM + dd;
+		return yy + MM + dd;
 	}
