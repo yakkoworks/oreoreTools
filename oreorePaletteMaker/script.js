@@ -91,6 +91,20 @@
 			closeModalDialog("dialog-saving");
 		});
 	}
+	function savePalette(){
+		var node = document.querySelector("#out-palette");
+		showModalDialog("dialog-saving");
+		node.style.zoom = "unset";
+		domtoimage.toPng(node,{width:1440,height: 1920})
+		.then(function (dataUrl) {
+			var link = document.createElement('a');
+			link.download = ""+formatDateTime()+".png";
+			link.href = dataUrl;
+			link.click();
+			// node.style.zoom = 0.3;
+			closeModalDialog("dialog-saving");
+		});
+	}
 	function HSVtoRGB( hue, saturation, value )
 	{
 		var C = value * saturation;
